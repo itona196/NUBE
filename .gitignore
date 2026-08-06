@@ -1,5 +1,10 @@
 node_modules/
 .next/
+.next-test/
 .env*
 .DS_Store
 npm-debug.log*
+playwright-report/
+test-results/
+nubeNouveauté/
+NUBE-Studio-source-v8/

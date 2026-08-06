@@ -25,7 +25,10 @@ Le site sera disponible sur `http://localhost:3000`.
 
 ## Pages
 
-- `/` : festival NUBE
+- `/` : accueil et aperçu de NUBE
+- `/festival` : concept du festival et prochaine édition
+- `/artistes` : programmation artistique
+- `/infos` : informations pratiques et FAQ
 - `/creation` : NUBE Studio
 - `/archives` : archives du festival
 

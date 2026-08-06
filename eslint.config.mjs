@@ -11,6 +11,8 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "build/**",
+    "nubeNouveauté/**",
+    "NUBE-Studio-source-v8/**",
     "next-env.d.ts",
   ]),
 ]);
