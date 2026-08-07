@@ -1,8 +1,82 @@
 @import "tailwindcss";
 
+:root {
+  --nube-coral: #fe69a0;
+  --nube-orchid: #ff76bc;
+  --nube-pink: #ff66c4;
+  --nube-dream: #ffc2f8;
+  --nube-white: #ffffff;
+  --nube-ink: #08080a;
+}
+
+@theme {
+  --font-sans: "Open Sauce", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+html {
+  background: var(--nube-ink);
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+body::before {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  content: "";
+  opacity: .09;
+  background-image:
+    radial-gradient(circle at 15% 25%, rgba(255,255,255,.75) 0 .45px, transparent .7px),
+    radial-gradient(circle at 72% 68%, rgba(255,102,196,.7) 0 .5px, transparent .8px),
+    radial-gradient(circle at 42% 82%, rgba(0,0,0,.65) 0 .4px, transparent .7px);
+  background-size: 5px 5px, 7px 7px, 9px 9px;
+  mix-blend-mode: soft-light;
+}
+
+main {
+  isolation: isolate;
+}
+
+.nube-dream-sky {
+  background-image:
+    radial-gradient(circle at 76% 38%, rgba(255,194,248,.2), transparent 24%),
+    radial-gradient(circle at 64% 48%, rgba(255,102,196,.18), transparent 38%),
+    linear-gradient(135deg, #08080a 0%, #120a12 58%, #08080a 100%);
+}
+
+.nube-image-treatment::before {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  content: "";
+  opacity: .2;
+  background:
+    radial-gradient(circle at 25% 18%, rgba(255,255,255,.9), transparent 16%),
+    linear-gradient(135deg, rgba(255,118,188,.42), transparent 42%, rgba(255,194,248,.2));
+  mix-blend-mode: screen;
+  transition: opacity .5s ease;
+}
+
+.nube-image-treatment:hover::before {
+  opacity: .32;
+}
+
+.nube-bloom {
+  filter: saturate(1.08) drop-shadow(0 0 24px rgba(255,102,196,.28));
+}
+
 @keyframes studioCloudFloat {
   0%, 100% { transform: rotate(7deg) translateY(0); }
   50% { transform: rotate(11deg) translateY(-12px); }
+}
+
+@keyframes studioSound {
+  to { transform: scaleY(.62); opacity: .68; }
 }
 
 section[id] {

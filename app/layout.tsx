@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,7 +22,7 @@ export default function RootLayout({
       className="scroll-smooth motion-reduce:scroll-auto"
       data-scroll-behavior="smooth"
     >
-      <body className="m-0 overflow-x-hidden bg-[#08080a] font-sans text-[#f1efe9] selection:bg-[#ff3f98] selection:text-[#09090b]">
+      <body className="m-0 overflow-x-hidden bg-[#08080a] font-sans text-[#f1efe9] selection:bg-[#ff66c4] selection:text-[#09090b]">
         {children}
       </body>
     </html>

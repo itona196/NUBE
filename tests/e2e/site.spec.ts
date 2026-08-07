@@ -35,6 +35,24 @@ test.describe("pages principales", () => {
   }
 });
 
+test("une adresse inconnue affiche la page 404 NUBE", async ({ page }) => {
+  const response = await page.goto("/page-qui-nexiste-pas");
+
+  expect(response?.status()).toBe(404);
+  await expect(page.getByRole("heading", { name: /HORS\s+SCÈNE/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: "RETOUR À L’ACCUEIL", exact: true })).toBeVisible();
+});
+
+test("les en-têtes de sécurité sont envoyés", async ({ request }) => {
+  const response = await request.get("/");
+  const headers = response.headers();
+
+  expect(headers["x-frame-options"]).toBe("DENY");
+  expect(headers["x-content-type-options"]).toBe("nosniff");
+  expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
+  expect(headers["permissions-policy"]).toContain("camera=()");
+});
+
 test("les images visibles sont chargées", async ({ page }) => {
   await page.goto("/artistes");
   await page.locator("img").last().scrollIntoViewIfNeeded();
@@ -137,6 +155,98 @@ test("le configurateur Studio calcule le parcours sélectionné", async ({ page 
   await expect(configurator.getByText("3 SÉLECTIONS")).toBeVisible();
   await expect(configurator.getByText("− 42 CHF")).toBeVisible();
   await expect(configurator.getByText("238 CHF")).toBeVisible();
+});
+
+test("le Studio utilise un seul flux de sélection sans imposer de durée", async ({ page }) => {
+  await page.goto("/creation");
+  const configurator = page.locator("#configurateur");
+
+  await expect(page.locator("#carte button")).toHaveCount(0);
+  await expect(configurator.getByLabel(/Direction artistique/)).toHaveCount(1);
+
+  await configurator.locator("label", { hasText: "Direction artistique" }).click();
+  await configurator.locator("label", { hasText: "Cover" }).click();
+  await configurator.locator("label", { hasText: "Studio" }).click();
+  await expect(configurator.locator("#studio-hours")).toHaveCount(0);
+
+  await expect(configurator.getByText("280 CHF")).toBeVisible();
+  await expect(configurator.getByText("− 42 CHF")).toBeVisible();
+  await expect(configurator.getByText("238 CHF")).toBeVisible();
+});
+
+test("le projet Studio est conservé puis peut être réinitialisé", async ({ page }) => {
+  await page.goto("/creation");
+  const configurator = page.locator("#configurateur");
+  await configurator.getByRole("button", { name: /Album/ }).click();
+  await configurator.locator("label", { hasText: "Cover" }).click();
+  await page.reload();
+
+  await expect(configurator.getByRole("button", { name: /Album/ })).toHaveAttribute("aria-pressed", "true");
+  await expect(configurator.getByRole("checkbox", { name: /Cover/ })).toBeChecked();
+
+  await configurator.getByRole("button", { name: "RÉINITIALISER MON PROJET" }).click();
+  await expect(configurator.getByRole("checkbox", { name: /Cover/ })).not.toBeChecked();
+  await page.reload();
+  await expect(configurator.getByRole("checkbox", { name: /Cover/ })).not.toBeChecked();
+});
+
+test("le résumé Studio est copié avant l’ouverture d’Instagram", async ({ page }) => {
+  await page.addInitScript(() => {
+    const state = window as Window & { __copied?: string; __opened?: string };
+    Object.defineProperty(navigator, "clipboard", { value: { writeText: async (text: string) => { state.__copied = text; } } });
+    window.open = ((url?: string | URL) => { state.__opened = String(url); return null; }) as typeof window.open;
+  });
+  await page.goto("/creation");
+  const configurator = page.locator("#configurateur");
+  await configurator.locator("label", { hasText: "Direction artistique" }).click();
+  await configurator.getByRole("button", { name: "COPIER LE RÉCAPITULATIF ET OUVRIR INSTAGRAM" }).click();
+
+  await expect(configurator.getByRole("status")).toContainText("Résumé copié");
+  const transfer = await page.evaluate(() => {
+    const state = window as Window & { __copied?: string; __opened?: string };
+    return { copied: state.__copied, opened: state.__opened };
+  });
+  expect(transfer.copied).toContain("Direction artistique");
+  expect(transfer.copied).toContain("150 CHF");
+  expect(transfer.opened).toBe("https://www.instagram.com/");
+});
+
+test("la navigation Studio atteint les sections principales", async ({ page }) => {
+  await page.goto("/creation");
+  const studioNavigation = page.getByRole("navigation", { name: "Navigation Studio" });
+  await studioNavigation.getByRole("link", { name: "MON PROJET" }).click();
+  await expect(page).toHaveURL(/#configurateur$/);
+  await expect(page.locator("#configurateur")).toBeInViewport();
+});
+
+test("toutes les pages restent lisibles aux largeurs courantes", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-chromium", "La matrice contient déjà les formats mobiles");
+  const viewports = [
+    { width: 320, height: 700 },
+    { width: 375, height: 760 },
+    { width: 768, height: 900 },
+    { width: 1024, height: 768 },
+    { width: 1440, height: 900 },
+  ];
+
+  for (const viewport of viewports) {
+    await page.setViewportSize(viewport);
+    for (const entry of pages) {
+      await page.goto(entry.path);
+      const layout = await page.evaluate(() => ({
+        viewport: document.documentElement.clientWidth,
+        content: document.documentElement.scrollWidth,
+      }));
+      expect(layout.content, `${entry.path} déborde à ${viewport.width}px`).toBeLessThanOrEqual(layout.viewport + 1);
+
+      const heading = page.locator("h1:visible").first();
+      if (await heading.count()) {
+        const box = await heading.boundingBox();
+        expect(box?.x ?? 0, `${entry.path} masque son titre à ${viewport.width}px`).toBeGreaterThanOrEqual(-1);
+        expect((box?.x ?? 0) + (box?.width ?? 0), `${entry.path} coupe son titre à ${viewport.width}px`).toBeLessThanOrEqual(viewport.width + 1);
+      }
+    }
+  }
 });
 
 test("le nuage du Studio reste entier et animé", async ({ page }) => {
