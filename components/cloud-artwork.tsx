@@ -1,21 +1,15 @@
-﻿type CloudArtworkProps = {
-  topLabel: string;
-  bottomLabel: string;
+import Image from "next/image";
+
+type CloudArtworkProps = {
   className?: string;
 };
 
-const orb =
-  "absolute rounded-full bg-[radial-gradient(circle_at_35%_28%,#ffc2f8_0,#ff76bc_24%,#fe69a0_48%,#7b235f_72%,#27122f_100%)] shadow-[inset_-25px_-30px_60px_rgba(0,0,0,.5),0_0_58px_rgba(255,102,196,.25)]";
-
-export function CloudArtwork({ topLabel, bottomLabel, className = "" }: CloudArtworkProps) {
+export function CloudArtwork({ className = "" }: CloudArtworkProps) {
   return (
-    <div className={`nube-bloom absolute right-[-23vw] top-[55%] z-2 aspect-square w-[75vw] opacity-75 saturate-110 min-[581px]:right-[-8vw] min-[581px]:top-[48%] min-[581px]:w-[65vw] min-[901px]:right-[clamp(-110px,-2vw,-25px)] min-[901px]:top-[18%] min-[901px]:w-[min(43vw,650px)] min-[901px]:opacity-100 ${className}`} aria-hidden="true">
-      <div className="absolute inset-[13%] rounded-full bg-[#ff66c4] opacity-30 blur-[80px] motion-safe:animate-pulse" />
-      <div className={`${orb} left-[8%] top-[28%] h-1/2 w-1/2`} /><div className={`${orb} right-[3%] top-[21%] h-[58%] w-[58%]`} />
-      <div className={`${orb} left-[31%] top-[2%] h-[42%] w-[42%]`} /><div className={`${orb} bottom-[15%] left-[24%] h-[43%] w-[55%]`} />
-      <div className="absolute inset-[28%] grid place-items-center rounded-full border border-white/35 font-[Georgia] text-[clamp(70px,10vw,165px)] italic text-white mix-blend-overlay drop-shadow-[0_0_25px_white]">N</div>
-      <span className="absolute right-[4%] top-[48%] rotate-90 text-[11px] font-black tracking-[.28em] text-white/70">{topLabel}</span>
-      <span className="absolute bottom-[22%] left-[5%] -rotate-12 text-[11px] font-black tracking-[.28em] text-white/70">{bottomLabel}</span>
+    <div className={`nube-bloom absolute right-[-18vw] top-[54%] z-2 aspect-square w-[72vw] animate-[studioCloudFloat_7s_ease-in-out_infinite] opacity-55 motion-reduce:animate-none min-[581px]:right-[-7vw] min-[581px]:top-[43%] min-[581px]:w-[58vw] min-[581px]:opacity-70 min-[901px]:right-[3vw] min-[901px]:top-[20%] min-[901px]:w-[min(38vw,560px)] min-[901px]:opacity-90 ${className}`} aria-hidden="true">
+      <div className="absolute inset-[16%] rounded-full bg-[#ff66c4]/35 blur-[70px]" />
+      <div className="absolute inset-[4%] rounded-full border border-white/10 before:absolute before:inset-[18%] before:rounded-full before:border before:border-white/10" />
+      <Image className="object-contain p-[8%] drop-shadow-[0_0_42px_rgba(255,102,196,.45)]" src="/nube-logo.webp" alt="" fill sizes="(min-width: 901px) 38vw, 72vw" priority />
     </div>
   );
 }

@@ -1,5 +1,53 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Open Sauce Sans";
+  src: url("/fonts/open-sauce-sans-400.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Open Sauce Sans";
+  src: url("/fonts/open-sauce-sans-500.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "Open Sauce Sans";
+  src: url("/fonts/open-sauce-sans-600.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: "Open Sauce Sans";
+  src: url("/fonts/open-sauce-sans-700.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "Open Sauce Sans";
+  src: url("/fonts/open-sauce-sans-800.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 800;
+}
+
+@font-face {
+  font-family: "Open Sauce Sans";
+  src: url("/fonts/open-sauce-sans-900.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 900;
+}
+
 :root {
   --nube-coral: #fe69a0;
   --nube-orchid: #ff76bc;
@@ -10,7 +58,7 @@
 }
 
 @theme {
-  --font-sans: "Open Sauce", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-sans: "Open Sauce Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 html {
@@ -28,17 +76,43 @@ body::before {
   z-index: 9999;
   pointer-events: none;
   content: "";
-  opacity: .09;
+  opacity: .065;
   background-image:
     radial-gradient(circle at 15% 25%, rgba(255,255,255,.75) 0 .45px, transparent .7px),
     radial-gradient(circle at 72% 68%, rgba(255,102,196,.7) 0 .5px, transparent .8px),
     radial-gradient(circle at 42% 82%, rgba(0,0,0,.65) 0 .4px, transparent .7px);
-  background-size: 5px 5px, 7px 7px, 9px 9px;
+  background-size: 7px 7px, 10px 10px, 13px 13px;
   mix-blend-mode: soft-light;
 }
 
 main {
   isolation: isolate;
+}
+
+.nube-skip-link {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  z-index: 10000;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 1rem;
+  color: #08080a;
+  background: #ff66c4;
+  font-size: 13px;
+  font-weight: 900;
+  transform: translateY(-180%);
+  transition: transform .2s ease;
+}
+
+.nube-skip-link:focus {
+  transform: translateY(0);
+}
+
+:where(a, button, summary, input):focus-visible {
+  outline: 2px solid #ff66c4;
+  outline-offset: 4px;
 }
 
 .nube-dream-sky {
@@ -85,6 +159,56 @@ section[id] {
 
 summary::-webkit-details-marker {
   display: none;
+}
+
+[class*="text-[9px]"],
+[class*="text-[10px]"] {
+  font-size: 11px;
+}
+
+a[class*="text-[11px]"],
+button[class*="text-[11px]"],
+summary[class*="text-[11px]"] {
+  font-size: 12px;
+}
+
+.nube-tap-target {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+nav a,
+a[class*="border-b"] {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+@media (max-width: 580px) {
+  a[class*="text-[11px]"],
+  button[class*="text-[11px]"],
+  summary[class*="text-[11px]"] {
+    font-size: 12px;
+  }
+
+  small {
+    font-size: 11px;
+  }
+
+  body::before {
+    position: absolute;
+    opacity: .045;
+    background-size: 8px 8px, 11px 11px, 13px 13px;
+  }
+
+  .nube-bloom {
+    filter: saturate(1.04) drop-shadow(0 0 16px rgba(255,102,196,.2));
+  }
+
+  [class*="studioSound"] {
+    animation: none !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

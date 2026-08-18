@@ -6,7 +6,7 @@ const pages = [
   { path: "/archives", heading: "NOS" },
   { path: "/festival", heading: "PAS SEULEMENT" },
   { path: "/artistes", heading: "SEPT ARTISTES" },
-  { path: "/infos", heading: "Informations pratiques" },
+  { path: "/infos", heading: "TOUT SAVOIR" },
 ];
 
 function captureBrowserErrors(page: Page) {
@@ -53,6 +53,44 @@ test("les en-têtes de sécurité sont envoyés", async ({ request }) => {
   expect(headers["permissions-policy"]).toContain("camera=()");
 });
 
+test("le référencement technique et les aperçus sociaux sont publiés", async ({ page, request }) => {
+  await page.goto("/festival");
+
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/festival$/);
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute("content", "Le festival — NUBE");
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary_large_image");
+  await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(2);
+
+  expect((await request.get("/robots.txt")).ok()).toBeTruthy();
+  expect((await request.get("/sitemap.xml")).ok()).toBeTruthy();
+  expect((await request.get("/opengraph-image")).ok()).toBeTruthy();
+});
+
+test("la police Open Sauce Sans est réellement chargée", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => document.fonts.ready);
+
+  const typography = await page.evaluate(() => ({
+    family: getComputedStyle(document.body).fontFamily,
+    loaded: document.fonts.check('16px "Open Sauce Sans"'),
+  }));
+
+  expect(typography.family).toContain("Open Sauce Sans");
+  expect(typography.loaded).toBeTruthy();
+});
+
+test("le lien d’évitement permet d’atteindre le contenu", async ({ page }) => {
+  await page.goto("/");
+  await page.keyboard.press("Tab");
+
+  const skipLink = page.getByRole("link", { name: "Aller au contenu" });
+  await expect(skipLink).toBeFocused();
+  await expect(skipLink).toBeVisible();
+  await skipLink.click();
+  await expect(page).toHaveURL(/#main-content$/);
+  await expect(page.locator("#main-content")).toBeFocused();
+});
+
 test("les images visibles sont chargées", async ({ page }) => {
   await page.goto("/artistes");
   await page.locator("img").last().scrollIntoViewIfNeeded();
@@ -75,20 +113,17 @@ test("la FAQ s’ouvre et expose sa réponse", async ({ page }) => {
   await expect(firstQuestion.locator("p")).toBeVisible();
 });
 
-test("les appels vers NUBE #2 atteignent la bonne section", async ({ page }, testInfo) => {
+test("le résumé de l’accueil mène au guide pratique", async ({ page }) => {
   await page.goto("/");
-  if (testInfo.project.name === "mobile-chromium") {
-    await page.getByRole("button", { name: "Ouvrir le menu" }).click();
-  }
-  await page.locator('a[href="/festival#edition"]').filter({ visible: true }).first().click();
+  await page.getByRole("link", { name: "OUVRIR LE GUIDE" }).click();
 
-  await expect(page).toHaveURL(/#edition$/);
-  await expect(page.locator("#edition")).toBeInViewport();
+  await expect(page).toHaveURL(/\/infos$/);
+  await expect(page.locator("#infos")).toBeInViewport();
 });
 
 test("la navigation entre les pages fonctionne", async ({ page }) => {
   await page.goto("/creation");
-  await page.getByRole("link", { name: "Retour à l’accueil NUBE", exact: true }).click();
+  await page.locator("header").getByRole("link", { name: "Retour à l’accueil NUBE", exact: true }).click();
 
   await expect(page).toHaveURL(/\/$/);
   await expect(page.locator("h1")).toContainText("NUBE");
@@ -111,6 +146,19 @@ test("la navigation principale reste identique sur toutes les pages", async ({ p
     for (const label of labels) {
       await expect(navigation.getByRole("link", { name: new RegExp(label) })).toBeVisible();
     }
+  }
+});
+
+test("le footer reprend exactement la navigation principale sur toutes les pages", async ({ page }) => {
+  const labels = ["FESTIVAL", "ARTISTES", "ARCHIVES", "INFOS", "STUDIO"];
+
+  for (const entry of pages) {
+    await page.goto(entry.path);
+    const footerNavigation = page.getByRole("navigation", { name: "Navigation de pied de page" });
+
+    await footerNavigation.scrollIntoViewIfNeeded();
+    await expect(footerNavigation.getByRole("link")).toHaveCount(labels.length);
+    expect(await footerNavigation.getByRole("link").allTextContents()).toEqual(labels);
   }
 });
 
@@ -174,14 +222,32 @@ test("le Studio utilise un seul flux de sélection sans imposer de durée", asyn
   await expect(configurator.getByText("238 CHF")).toBeVisible();
 });
 
+test("le résumé Studio mobile reste accessible pendant la sélection", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile-chromium", "Le résumé fixe est réservé au mobile");
+  await page.goto("/creation");
+  const configurator = page.locator("#configurateur");
+
+  await configurator.locator("label", { hasText: "Direction artistique" }).click();
+  const summaryLink = page.getByRole("link", { name: "VOIR MON PROJET" });
+  await expect(summaryLink).toBeVisible();
+  await expect(summaryLink.locator("..").getByText("1 SÉLECTION", { exact: true })).toBeVisible();
+  await summaryLink.click();
+  await expect(page.locator("#project-summary")).toBeInViewport();
+});
+
+test("les plateformes indisponibles ne sont pas affichées", async ({ page }) => {
+  await page.goto("/artistes");
+  await expect(page.getByText(/BIENTÔT/)).toHaveCount(0);
+});
+
 test("le projet Studio est conservé puis peut être réinitialisé", async ({ page }) => {
   await page.goto("/creation");
   const configurator = page.locator("#configurateur");
-  await configurator.getByRole("button", { name: /Album/ }).click();
+  await configurator.getByRole("button", { name: "Album", exact: true }).click();
   await configurator.locator("label", { hasText: "Cover" }).click();
   await page.reload();
 
-  await expect(configurator.getByRole("button", { name: /Album/ })).toHaveAttribute("aria-pressed", "true");
+  await expect(configurator.getByRole("button", { name: /^Album/ })).toHaveAttribute("aria-pressed", "true");
   await expect(configurator.getByRole("checkbox", { name: /Cover/ })).toBeChecked();
 
   await configurator.getByRole("button", { name: "RÉINITIALISER MON PROJET" }).click();
@@ -217,6 +283,27 @@ test("la navigation Studio atteint les sections principales", async ({ page }) =
   await studioNavigation.getByRole("link", { name: "MON PROJET" }).click();
   await expect(page).toHaveURL(/#configurateur$/);
   await expect(page.locator("#configurateur")).toBeInViewport();
+});
+
+test("les principales zones de navigation gardent une cible de 44 px", async ({ page }) => {
+  await page.goto("/");
+
+  const undersized = await page.locator("header nav a:visible, footer nav a:visible, a[class*='border-b']:visible").evaluateAll((links) =>
+    links
+      .map((link) => ({ text: link.textContent?.trim(), height: link.getBoundingClientRect().height }))
+      .filter((link) => link.height < 43.5),
+  );
+
+  expect(undersized).toEqual([]);
+});
+
+test("Studio reste plus direct sur mobile", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile-chromium", "Mesure réservée au mobile");
+  await page.goto("/creation");
+
+  await expect(page.locator("#parcours")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /BASE SINGLE/ })).toBeVisible();
+  expect(await page.evaluate(() => document.body.scrollHeight)).toBeLessThan(7000);
 });
 
 test("toutes les pages restent lisibles aux largeurs courantes", async ({ page }, testInfo) => {

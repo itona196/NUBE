@@ -8,6 +8,29 @@ type ArtistGridProps = {
   descriptions?: boolean;
 };
 
+function SpotifyIcon() {
+  return (
+    <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="11" fill="currentColor" />
+      <path d="M6.6 9.25c3.72-1.05 7.67-.73 10.99.9" stroke="var(--icon-cutout, #f1efe9)" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M7.2 12.45c3.12-.82 6.5-.54 9.33.82" stroke="var(--icon-cutout, #f1efe9)" strokeWidth="1.55" strokeLinecap="round" />
+      <path d="M7.75 15.45c2.58-.62 5.37-.39 7.72.69" stroke="var(--icon-cutout, #f1efe9)" strokeWidth="1.35" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function SoundCloudIcon() {
+  return (
+    <svg className="h-6 w-7" viewBox="0 0 28 24" fill="currentColor" aria-hidden="true">
+      <rect x="1" y="12" width="1.6" height="6" rx=".8" />
+      <rect x="4" y="9.5" width="1.7" height="11" rx=".85" />
+      <rect x="7.1" y="7" width="1.8" height="15" rx=".9" />
+      <rect x="10.4" y="5" width="1.9" height="18" rx=".95" />
+      <path d="M14.2 21.2h8.7a4.1 4.1 0 0 0 .35-8.18A6.25 6.25 0 0 0 13.9 8.1v12.8c0 .17.13.3.3.3Z" />
+    </svg>
+  );
+}
+
 export function ArtistGrid({ limit, names, numbered = true, descriptions = true }: ArtistGridProps) {
   const selectedArtists = names
     ? names.flatMap((name) => artists.filter((artist) => artist.name === name))
@@ -15,7 +38,7 @@ export function ArtistGrid({ limit, names, numbered = true, descriptions = true 
   const visibleArtists = limit ? selectedArtists.slice(0, limit) : selectedArtists;
 
   return (
-    <div className="grid grid-cols-2 gap-x-[9px] gap-y-[30px] min-[581px]:gap-x-3.5 min-[581px]:gap-y-[42px] min-[901px]:grid-cols-4">
+    <div className="grid grid-cols-1 gap-x-[9px] gap-y-12 min-[581px]:grid-cols-2 min-[581px]:gap-x-3.5 min-[581px]:gap-y-[42px] min-[901px]:grid-cols-4">
       {visibleArtists.map((artist, index) => (
         <article className="group min-w-0 min-[901px]:even:translate-y-10" key={artist.name}>
           <div className="nube-image-treatment relative aspect-[2/3] overflow-hidden border border-[#c5c0b8] bg-[#111014] after:pointer-events-none after:absolute after:inset-0 after:z-[1] after:bg-[linear-gradient(180deg,rgba(0,0,0,.12),transparent_30%,rgba(0,0,0,.78))]">
@@ -34,11 +57,11 @@ export function ArtistGrid({ limit, names, numbered = true, descriptions = true 
           </div>
           {descriptions && artist.description && (
             <div className="mt-4 border-l-2 border-[#ff66c4] pl-4">
-              <p className="mb-0 max-w-[34rem] text-[13px] leading-[1.65] text-[#5b575e]">{artist.description}</p>
+              <p className="mb-0 max-w-[34rem] font-sans text-[15px] font-medium leading-[1.65] tracking-[-.015em] text-[#514c54]">{artist.description}</p>
               <div className="mt-4 flex flex-wrap gap-2">
-                {!artist.soundcloudUrl && (artist.spotifyUrl ? <a className="border border-[#0a090b] px-3 py-2 text-[9px] font-black tracking-[.14em] transition hover:border-[#ff66c4] hover:bg-[#ff66c4]" href={artist.spotifyUrl} target="_blank" rel="noreferrer">SPOTIFY</a> : <span className="cursor-not-allowed border border-black/20 px-3 py-2 text-[9px] font-black tracking-[.14em] text-black/35" aria-disabled="true">SPOTIFY · BIENTÔT</span>)}
-                {artist.soundcloudUrl && <a className="border border-[#0a090b] px-3 py-2 text-[9px] font-black tracking-[.14em] transition hover:border-[#ff66c4] hover:bg-[#ff66c4]" href={artist.soundcloudUrl} target="_blank" rel="noreferrer">SOUNDCLOUD</a>}
-                {artist.instagramUrl ? <a className="border border-[#0a090b] px-3 py-2 text-[9px] font-black tracking-[.14em] transition hover:border-[#ff66c4] hover:bg-[#ff66c4]" href={artist.instagramUrl} target="_blank" rel="noreferrer">INSTAGRAM</a> : <span className="cursor-not-allowed border border-black/20 px-3 py-2 text-[9px] font-black tracking-[.14em] text-black/35" aria-disabled="true">INSTAGRAM · BIENTÔT</span>}
+                {artist.spotifyUrl && <a className="grid h-11 w-11 place-items-center border border-[#0a090b] text-[#0a090b] transition hover:-translate-y-0.5 hover:border-[#ff66c4]" href={artist.spotifyUrl} target="_blank" rel="noreferrer" aria-label={`Écouter ${artist.name} sur Spotify`} title="Spotify"><SpotifyIcon /></a>}
+                {artist.soundcloudUrl && <a className="grid h-11 w-11 place-items-center border border-[#0a090b] text-[#0a090b] transition hover:-translate-y-0.5 hover:border-[#ff66c4]" href={artist.soundcloudUrl} target="_blank" rel="noreferrer" aria-label={`Écouter ${artist.name} sur SoundCloud`} title="SoundCloud"><SoundCloudIcon /></a>}
+                {artist.instagramUrl && <a className="inline-flex min-h-11 items-center border border-[#0a090b] px-4 py-2 text-[11px] font-black tracking-[.12em] transition hover:border-[#ff66c4] hover:bg-[#ff66c4] min-[581px]:text-[12px]" href={artist.instagramUrl} target="_blank" rel="noreferrer">INSTAGRAM</a>}
               </div>
             </div>
           )}

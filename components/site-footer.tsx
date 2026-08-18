@@ -1,37 +1,37 @@
 import Link from "next/link";
-import type { NavigationItem } from "./site-header";
+import { mainNavigation } from "@/data/navigation";
 
 type SiteFooterProps = {
-  tagline: string;
-  links: NavigationItem[];
-  copyright: string;
-  darkBorder?: boolean;
+  theme?: "dark" | "light" | "pink";
 };
 
-export function SiteFooter({
-  tagline,
-  links,
-  copyright,
-  darkBorder = false,
-}: SiteFooterProps) {
+const themes = {
+  dark: "border-white/15 bg-[#09090b] text-white",
+  light: "border-black/20 bg-[#f1efe9] text-[#0a090b]",
+  pink: "border-black/25 bg-[#ff66c4] text-[#0a090b]",
+};
+
+export function SiteFooter({ theme = "dark" }: SiteFooterProps) {
+  const muted = theme === "dark" ? "text-white/65" : "text-black/65";
+  const linkHover = theme === "pink" ? "hover:text-white" : "hover:text-[#ff66c4]";
+
   return (
-    <footer
-      className={`absolute inset-x-[clamp(24px,4vw,70px)] bottom-[34px] z-10 grid grid-cols-2 items-end gap-y-[18px] border-t pt-6 text-left min-[581px]:grid-cols-[1fr_auto_1fr] ${darkBorder ? "border-black/40 text-[#0a090b]" : "border-white/20 text-white"}`}
-    >
-      <div className="text-[22px] font-[950] tracking-[-.05em]">
-        NUBE<sup className="ml-0.5 align-top text-[11px]">®</sup>
-        <span className="mt-1 block text-[10px] tracking-[.18em]">{tagline}</span>
-      </div>
-      <div className="row-start-2 flex flex-wrap gap-x-[26px] gap-y-2 text-[11px] font-black tracking-[.15em] min-[581px]:row-auto">
-        {links.map((link) => (
-          <Link className="transition hover:text-white" href={link.href} key={`${link.href}-${link.label}`}>
-            {link.label}
-          </Link>
-        ))}
-      </div>
-      <div className="row-start-2 justify-self-end text-right text-[11px] font-bold leading-[1.7] tracking-[.13em] min-[581px]:row-auto">
-        LAUSANNE, CH
-        <br />© 2026 {copyright}
+    <footer className={`border-t px-[clamp(24px,7vw,110px)] py-9 ${themes[theme]}`}>
+      <div className="grid gap-7 text-center min-[901px]:grid-cols-[1fr_auto_1fr] min-[901px]:items-end min-[901px]:text-left">
+        <div className="justify-self-center min-[901px]:justify-self-start">
+          <Link className="inline-flex min-h-11 items-center text-2xl font-[950] tracking-[-.05em]" href="/" aria-label="Retour à l’accueil NUBE">NUBE<sup className="ml-0.5 align-top text-[11px]">®</sup></Link>
+          <p className={`mb-0 mt-2 text-[12px] font-bold leading-[1.6] tracking-[.08em] ${muted}`}>FESTIVAL ET STUDIO ARTISTIQUE INDÉPENDANT · LAUSANNE</p>
+        </div>
+        <nav className="flex flex-wrap justify-center gap-x-6 gap-y-4 justify-self-center" aria-label="Navigation de pied de page">
+          {mainNavigation.map((link) => (
+            <Link className={`inline-flex min-h-11 items-center text-[12px] font-black tracking-[.12em] transition ${linkHover}`} href={link.href} key={link.href}>
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+        <p className={`m-0 justify-self-center text-[12px] font-bold tracking-[.1em] min-[901px]:justify-self-end min-[901px]:text-right ${muted}`}>
+          © 2026 NUBE · LAUSANNE, CH
+        </p>
       </div>
     </footer>
   );

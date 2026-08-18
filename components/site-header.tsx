@@ -70,7 +70,7 @@ export function SiteHeader({
       >
         {navigation.map((item) => (
           <Link
-            className={`relative text-[11px] font-extrabold tracking-[.14em] transition after:absolute after:-bottom-2 after:left-0 after:h-px after:bg-[#ff66c4] after:transition-all hover:text-[#ff66c4] ${activeHref === item.href || pathname === item.href ? "text-[#ff66c4] opacity-100 after:w-full" : "opacity-70 after:w-0"}`}
+            className={`relative inline-flex min-h-11 items-center text-[11px] font-extrabold tracking-[.14em] transition after:absolute after:bottom-1 after:left-0 after:h-px after:bg-[#ff66c4] after:transition-all hover:text-[#ff66c4] ${activeHref === item.href || pathname === item.href ? "text-[#ff66c4] opacity-100 after:w-full" : "opacity-80 after:w-0"}`}
             href={item.href}
             key={item.href}
             aria-current={pathname === item.href ? "page" : activeHref === item.href ? "location" : undefined}
@@ -82,7 +82,7 @@ export function SiteHeader({
       <div className="flex items-center justify-self-end gap-3">
         {action && (
           <Link
-            className="hidden items-center gap-3.5 text-[11px] font-extrabold tracking-[.14em] min-[901px]:flex"
+            className="hidden min-h-11 items-center gap-3.5 text-[11px] font-extrabold tracking-[.14em] min-[901px]:flex"
             href={action.href}
           >
             {action.label}
