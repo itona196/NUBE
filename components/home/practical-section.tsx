@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 const practicalDetails = [
   { label: "ÉDITION", value: "NUBE #2" },
@@ -13,7 +13,7 @@ export function PracticalSection() {
       <div className="grid gap-10 min-[901px]:grid-cols-[.65fr_1.35fr] min-[901px]:items-end">
         <div>
           <p className="mb-4 text-[11px] font-black tracking-[.18em] text-white/80">L’ESSENTIEL</p>
-          <h2 className="m-0 text-[clamp(38px,5vw,72px)] leading-[.92] tracking-[-.06em]">NUBE #2<br /><span className="sr-only"> </span><em className="font-[Georgia] font-normal text-[#ff66c4]">ARRIVE.</em></h2>
+          <h2 className="m-0 text-[clamp(38px,5vw,72px)] leading-[.92] tracking-[-.06em]">NUBE #2<br /><span className="sr-only"> </span><em className="font-[Georgia] font-normal text-[var(--nube-accent-text)]">ARRIVE.</em></h2>
         </div>
         <div>
           <div className="grid grid-cols-2 border-l border-t border-white/15 min-[581px]:grid-cols-4">

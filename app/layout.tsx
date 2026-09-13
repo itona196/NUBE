@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import "./globals.css";
 import { createPageMetadata, siteDescription, siteName, siteUrl } from "@/data/site";
 
@@ -43,7 +43,7 @@ export default function RootLayout({
       className="scroll-smooth motion-reduce:scroll-auto"
       data-scroll-behavior="smooth"
     >
-      <body className="m-0 overflow-x-hidden bg-[#08080a] font-sans text-[#f1efe9] selection:bg-[#ff66c4] selection:text-[#09090b]">
+      <body className="m-0 overflow-x-hidden nube-surface-dark bg-[#08080a] font-sans text-[#f1efe9] selection:bg-[#ff66c4] selection:text-[#09090b]">
         <a className="nube-skip-link" href="#main-content">Aller au contenu</a>
         {children}
         <script

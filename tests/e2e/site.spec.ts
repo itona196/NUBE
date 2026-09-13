@@ -97,7 +97,7 @@ test("les images visibles sont chargées", async ({ page }) => {
 
   const failedImages = await page.locator("img").evaluateAll((images) =>
     images
-      .filter((image) => image.complete && image.naturalWidth === 0)
+      .filter((image) => image instanceof HTMLImageElement && image.complete && image.naturalWidth === 0)
       .map((image) => image.getAttribute("src")),
   );
 
@@ -184,11 +184,11 @@ test("la mise en page ne déborde pas horizontalement", async ({ page }) => {
   expect(dimensions.content).toBeLessThanOrEqual(dimensions.viewport + 1);
 });
 
-test("le contact utilise Instagram et aucun lien e-mail", async ({ page }) => {
+test("le contact propose Instagram et l’adresse e-mail NUBE", async ({ page }) => {
   for (const path of ["/festival", "/creation"]) {
     await page.goto(path);
-    await expect(page.locator('a[href^="mailto:"]')).toHaveCount(0);
-    await expect(page.getByRole("link", { name: /INSTAGRAM/ }).first()).toHaveAttribute("href", "https://www.instagram.com/");
+    await expect(page.locator('a[href="mailto:contact@nubeexperience.ch"]')).toHaveCount(2);
+    await expect(page.getByRole("link", { name: /INSTAGRAM/ }).first()).toHaveAttribute("href", "https://www.instagram.com/nube.experience/");
   }
 });
 
@@ -202,7 +202,7 @@ test("le configurateur Studio calcule le parcours sélectionné", async ({ page 
 
   await expect(configurator.getByText("3 SÉLECTIONS")).toBeVisible();
   await expect(configurator.getByText("− 42 CHF")).toBeVisible();
-  await expect(configurator.getByText("238 CHF")).toBeVisible();
+  await expect(configurator.getByText("238 CHF", { exact: true })).toBeVisible();
 });
 
 test("le Studio utilise un seul flux de sélection sans imposer de durée", async ({ page }) => {
@@ -219,7 +219,7 @@ test("le Studio utilise un seul flux de sélection sans imposer de durée", asyn
 
   await expect(configurator.getByText("280 CHF")).toBeVisible();
   await expect(configurator.getByText("− 42 CHF")).toBeVisible();
-  await expect(configurator.getByText("238 CHF")).toBeVisible();
+  await expect(configurator.getByText("238 CHF", { exact: true })).toBeVisible();
 });
 
 test("le résumé Studio mobile reste accessible pendant la sélection", async ({ page }, testInfo) => {
@@ -274,7 +274,7 @@ test("le résumé Studio est copié avant l’ouverture d’Instagram", async ({
   });
   expect(transfer.copied).toContain("Direction artistique");
   expect(transfer.copied).toContain("150 CHF");
-  expect(transfer.opened).toBe("https://www.instagram.com/");
+  expect(transfer.opened).toBe("https://www.instagram.com/nube.experience/");
 });
 
 test("la navigation Studio atteint les sections principales", async ({ page }) => {
@@ -376,4 +376,27 @@ test("le menu mobile se ferme avec Échap", async ({ page }, testInfo) => {
 
   await expect(page.locator("#mobile-navigation")).toBeHidden();
   await expect(page.getByRole("button", { name: "Ouvrir le menu" })).toHaveAttribute("aria-expanded", "false");
+});
+
+for (const errorName of ["SecurityError", "QuotaExceededError"]) {
+  test(`le configurateur reste utilisable si la sauvegarde échoue : ${errorName}`, async ({ page }) => {
+    const errors = captureBrowserErrors(page);
+    await page.addInitScript((name) => {
+      Storage.prototype.setItem = () => { throw new DOMException("Storage unavailable", name); };
+    }, errorName);
+    await page.goto("/creation");
+    const configurator = page.locator("#configurateur");
+    await configurator.locator("label", { hasText: "Cover" }).click();
+    await expect(configurator.getByRole("checkbox", { name: /Cover/ })).toBeChecked();
+    await expect(page.locator("#project-summary")).toContainText("80 CHF");
+    await configurator.getByRole("button", { name: "RÉINITIALISER MON PROJET" }).click();
+    await expect(configurator.getByRole("checkbox", { name: /Cover/ })).not.toBeChecked();
+    expect(errors).toEqual([]);
+  });
+}
+
+test("le rose du Studio s’adapte aux fonds clairs et sombres", async ({ page }) => {
+  await page.goto("/creation");
+  await expect(page.locator("#configurateur h2 em")).toHaveCSS("color", "rgb(168, 21, 104)");
+  await expect(page.locator("#project-summary > div").first().locator("p").first()).toHaveCSS("color", "rgb(255, 102, 196)");
 });

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -62,7 +62,7 @@ export function SiteHeader({
   const closeMenu = () => setMenuOpen(false);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 grid h-[78px] grid-cols-[1fr_auto] items-center border-b border-white/15 bg-[#08080a]/80 px-[clamp(24px,4vw,72px)] text-white backdrop-blur-xl min-[901px]:h-24 min-[901px]:grid-cols-[1fr_auto_1fr]">
+    <header className="fixed inset-x-0 top-0 z-50 grid h-[78px] grid-cols-[1fr_auto] items-center border-b border-white/15 nube-surface-dark bg-[#08080a]/80 px-[clamp(24px,4vw,72px)] text-white backdrop-blur-xl min-[901px]:h-24 min-[901px]:grid-cols-[1fr_auto_1fr]">
       <Brand href={brandHref} ariaLabel={brandLabel} />
       <nav
         className="hidden gap-[clamp(16px,2vw,30px)] min-[901px]:flex"
@@ -70,7 +70,7 @@ export function SiteHeader({
       >
         {navigation.map((item) => (
           <Link
-            className={`relative inline-flex min-h-11 items-center text-[11px] font-extrabold tracking-[.14em] transition after:absolute after:bottom-1 after:left-0 after:h-px after:bg-[#ff66c4] after:transition-all hover:text-[#ff66c4] ${activeHref === item.href || pathname === item.href ? "text-[#ff66c4] opacity-100 after:w-full" : "opacity-80 after:w-0"}`}
+            className={`relative inline-flex min-h-11 items-center text-[11px] font-extrabold tracking-[.14em] transition after:absolute after:bottom-1 after:left-0 after:h-px after:bg-[#ff66c4] after:transition-all hover:text-[var(--nube-accent-text)] ${activeHref === item.href || pathname === item.href ? "text-[var(--nube-accent-text)] opacity-100 after:w-full" : "opacity-80 after:w-0"}`}
             href={item.href}
             key={item.href}
             aria-current={pathname === item.href ? "page" : activeHref === item.href ? "location" : undefined}
@@ -89,7 +89,7 @@ export function SiteHeader({
           </Link>
         )}
         <button
-          className="grid h-11 w-11 place-items-center border border-white/20 text-white transition hover:border-[#ff66c4] hover:text-[#ff66c4] min-[901px]:hidden"
+          className="grid h-11 w-11 place-items-center border border-white/20 text-white transition hover:border-[#ff66c4] hover:text-[var(--nube-accent-text)] min-[901px]:hidden"
           type="button"
           aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
           aria-expanded={menuOpen}
@@ -106,19 +106,19 @@ export function SiteHeader({
 
       <nav
         id="mobile-navigation"
-        className={`absolute inset-x-0 top-full border-b border-white/15 bg-[#08080a]/97 px-6 pb-7 pt-3 shadow-2xl backdrop-blur-xl transition duration-200 min-[901px]:hidden ${menuOpen ? "visible translate-y-0 opacity-100" : "invisible -translate-y-3 opacity-0"}`}
+        className={`absolute inset-x-0 top-full border-b border-white/15 nube-surface-dark bg-[#08080a]/97 px-6 pb-7 pt-3 shadow-2xl backdrop-blur-xl transition duration-200 min-[901px]:hidden ${menuOpen ? "visible translate-y-0 opacity-100" : "invisible -translate-y-3 opacity-0"}`}
         aria-label={`${navigationLabel} mobile`}
       >
         <div className="flex flex-col">
           {navigation.map((item, itemIndex) => (
             <Link
-              className={`flex items-center justify-between border-b border-white/10 py-5 text-sm font-black tracking-[.14em] transition hover:text-[#ff66c4] ${activeHref === item.href || pathname === item.href ? "text-[#ff66c4]" : "text-white/80"}`}
+              className={`flex items-center justify-between border-b border-white/10 py-5 text-sm font-black tracking-[.14em] transition hover:text-[var(--nube-accent-text)] ${activeHref === item.href || pathname === item.href ? "text-[var(--nube-accent-text)]" : "text-white/80"}`}
               href={item.href}
               key={item.href}
               aria-current={pathname === item.href ? "page" : activeHref === item.href ? "location" : undefined}
               onClick={closeMenu}
             >
-              <span><small className="mr-4 font-[Georgia] text-[12px] italic text-[#ff66c4]">0{itemIndex + 1}</small>{item.label}</span>
+              <span><small className="mr-4 font-[Georgia] text-[12px] italic text-[var(--nube-accent-text)]">0{itemIndex + 1}</small>{item.label}</span>
             </Link>
           ))}
           {action && (
