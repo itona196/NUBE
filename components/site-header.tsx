@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Brand } from "./brand";
@@ -28,6 +28,7 @@ export function SiteHeader({
   const pathname = usePathname();
   const [activeHref, setActiveHref] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const sections = navigation
@@ -52,12 +53,15 @@ export function SiteHeader({
 
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMenuOpen(false);
+      if (event.key === "Escape" && menuOpen) {
+        setMenuOpen(false);
+        menuButton.current?.focus();
+      }
     };
 
     window.addEventListener("keydown", closeOnEscape);
     return () => window.removeEventListener("keydown", closeOnEscape);
-  }, []);
+  }, [menuOpen]);
 
   const closeMenu = () => setMenuOpen(false);
 
@@ -89,6 +93,7 @@ export function SiteHeader({
           </Link>
         )}
         <button
+          ref={menuButton}
           className="grid h-11 w-11 place-items-center border border-white/20 text-white transition hover:border-[#ff66c4] hover:text-[var(--nube-accent-text)] min-[901px]:hidden"
           type="button"
           aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
@@ -106,7 +111,7 @@ export function SiteHeader({
 
       <nav
         id="mobile-navigation"
-        className={`absolute inset-x-0 top-full border-b border-white/15 nube-surface-dark bg-[#08080a]/97 px-6 pb-7 pt-3 shadow-2xl backdrop-blur-xl transition duration-200 min-[901px]:hidden ${menuOpen ? "visible translate-y-0 opacity-100" : "invisible -translate-y-3 opacity-0"}`}
+        className={`absolute inset-x-0 top-full max-h-[calc(100dvh-78px)] overflow-y-auto overscroll-contain border-b border-white/15 nube-surface-dark bg-[#08080a]/97 px-6 pb-7 pt-3 shadow-2xl backdrop-blur-xl transition duration-200 min-[901px]:hidden ${menuOpen ? "visible translate-y-0 opacity-100" : "invisible -translate-y-3 opacity-0"}`}
         aria-label={`${navigationLabel} mobile`}
       >
         <div className="flex flex-col">

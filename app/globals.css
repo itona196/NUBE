@@ -234,3 +234,44 @@ a[class*="border-b"] {
 .nube-surface-light {
   --nube-accent-text: #a81568;
 }
+
+/* Native video controls remain the no-JavaScript fallback. */
+.nube-video-range {
+  appearance: none;
+  height: 44px;
+  margin: 0;
+  background-color: transparent;
+  background-size: 100% 6px;
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  accent-color: #ff66c4;
+}
+.nube-video-range:disabled { cursor: default; }
+.nube-video-range::-webkit-slider-runnable-track { height: 6px; background: transparent; }
+.nube-video-range::-moz-range-track { height: 6px; background: transparent; }
+.nube-video-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -5px;
+  border: 2px solid #f1efe9;
+  border-radius: 50%;
+  background: #ff66c4;
+}
+.nube-video-range::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #f1efe9;
+  border-radius: 50%;
+  background: #ff66c4;
+}
+.nube-aftermovie:fullscreen { width: 100%; height: 100%; }
+.nube-aftermovie:fullscreen .nube-aftermovie-stage { flex: 1; }
+.nube-aftermovie:fullscreen video { height: 100%; }
+
+/* Keep controls clear of the fixed header and mobile project summary on focus. */
+:where(a, button, input, summary) {
+  scroll-margin-top: 160px;
+  scroll-margin-bottom: 100px;
+}

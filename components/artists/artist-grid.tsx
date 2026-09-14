@@ -48,6 +48,16 @@ function SoundCloudIcon() {
   );
 }
 
+function InstagramIcon() {
+  return (
+    <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 export function ArtistGrid({ limit, names, numbered = true, descriptions = true }: ArtistGridProps) {
   const selectedArtists = names
     ? names.flatMap((name) => artists.filter((artist) => artist.name === name))
@@ -80,7 +90,7 @@ export function ArtistGrid({ limit, names, numbered = true, descriptions = true 
                 {artist.appleMusicUrl && <a className="grid h-11 w-11 place-items-center border border-[#0a090b] text-[#0a090b] transition hover:-translate-y-0.5 hover:border-[#ff66c4]" href={artist.appleMusicUrl} target="_blank" rel="noopener noreferrer" aria-label={`Écouter ${artist.name} sur Apple Music`} title="Apple Music"><AppleMusicIcon /></a>}
                 {artist.deezerUrl && <a className="grid h-11 w-11 place-items-center border border-[#0a090b] text-[#0a090b] transition hover:-translate-y-0.5 hover:border-[#ff66c4]" href={artist.deezerUrl} target="_blank" rel="noopener noreferrer" aria-label={`Écouter ${artist.name} sur Deezer`} title="Deezer"><DeezerIcon /></a>}
                 {artist.soundcloudUrl && <a className="grid h-11 w-11 place-items-center border border-[#0a090b] text-[#0a090b] transition hover:-translate-y-0.5 hover:border-[#ff66c4]" href={artist.soundcloudUrl} target="_blank" rel="noreferrer" aria-label={`Écouter ${artist.name} sur SoundCloud`} title="SoundCloud"><SoundCloudIcon /></a>}
-                {artist.instagramUrl && <a className="inline-flex min-h-11 items-center border border-[#0a090b] px-4 py-2 text-[11px] font-black tracking-[.12em] transition hover:border-[#ff66c4] hover:bg-[#ff66c4] min-[581px]:text-[12px]" href={artist.instagramUrl} target="_blank" rel="noreferrer">INSTAGRAM</a>}
+                {artist.instagramUrl && <a className="grid h-11 w-11 place-items-center border border-[#0a090b] text-[#0a090b] transition hover:-translate-y-0.5 hover:border-[#ff66c4]" href={artist.instagramUrl} target="_blank" rel="noopener noreferrer" aria-label={`Suivre ${artist.name} sur Instagram`} title="Instagram"><InstagramIcon /></a>}
               </div>
             </div>
           )}

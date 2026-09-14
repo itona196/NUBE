@@ -5,7 +5,7 @@ export const siteDescription =
   "NUBE réunit des artistes, construit leurs univers et les fait vivre sur scène à Lausanne.";
 
 export const siteUrl = new URL(
-  process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+  process.env.NEXT_PUBLIC_SITE_URL || "https://nubeexperience.ch",
 );
 
 const socialImage = {

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { MainHeader } from "@/components/main-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -31,11 +32,12 @@ const eventData = {
 const section = "relative px-[clamp(24px,7vw,110px)] py-[clamp(64px,8vw,112px)]";
 const index = "mb-6 text-[11px] font-black tracking-[.18em] opacity-70";
 
-export default function FestivalPage() {
+export default async function FestivalPage() {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
     <main id="main-content" tabIndex={-1}>
       <MainHeader />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(eventData).replace(/</g, "\\u003c") }} />
+      <script nonce={nonce} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(eventData).replace(/</g, "\\u003c") }} />
 
       <section id="top" className={`${section} flex min-h-[68svh] items-end overflow-hidden nube-surface-light bg-[#f1efe9] pt-40 text-[#0a0a0d]`}>
         <div className="relative z-2"><p className={index}>LE FESTIVAL · LAUSANNE</p><h1 className="m-0 text-[clamp(44px,9vw,120px)] leading-[.92] tracking-[-.08em]">PAS SEULEMENT<br /><span className="sr-only"> </span><em className="font-[Georgia] font-normal text-[var(--nube-accent-text)]">UN CONCERT.</em></h1><p className="mt-10 max-w-xl text-[clamp(16px,1.6vw,23px)] leading-[1.6] text-[#4f4b52]">NUBE accompagne les artistes pour faire exister une identité, une histoire et une scène qui leur appartient.</p><div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4"><a className="border-b border-black/45 pb-2 text-[12px] font-black tracking-[.12em]" href="#methode">DÉCOUVRIR LA MÉTHODE</a><Link className="border-b border-black/45 pb-2 text-[12px] font-black tracking-[.12em]" href="/archives">VOIR NUBE #1</Link><a className="nube-surface-dark bg-[#0a090b] px-5 py-4 text-[12px] font-black tracking-[.12em] text-white" href="#edition">SUIVRE NUBE #2</a></div></div>

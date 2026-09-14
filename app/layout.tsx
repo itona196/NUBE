@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import "./globals.css";
 import { createPageMetadata, siteDescription, siteName, siteUrl } from "@/data/site";
 
@@ -32,11 +33,12 @@ const organizationData = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
     <html
       lang="fr"
@@ -47,6 +49,7 @@ export default function RootLayout({
         <a className="nube-skip-link" href="#main-content">Aller au contenu</a>
         {children}
         <script
+          nonce={nonce}
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(organizationData).replace(/</g, "\\u003c"),
