@@ -275,3 +275,8 @@ a[class*="border-b"] {
   scroll-margin-top: 160px;
   scroll-margin-bottom: 100px;
 }
+
+/* Use the homepage artwork while keeping the Studio cloud within mobile bounds. */
+.studio-cloud { right: 4vw; top: 54%; width: min(54vw, 280px); opacity: .35; }
+@media (min-width: 581px) { .studio-cloud { right: 4vw; top: 43%; width: min(48vw, 390px); opacity: .65; } }
+@media (min-width: 901px) { .studio-cloud { right: 3vw; top: 20%; width: min(38vw, 560px); opacity: .9; } }

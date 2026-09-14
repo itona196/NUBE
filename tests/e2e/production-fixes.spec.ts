@@ -24,8 +24,8 @@ test("CSP unique, scripts autorisés et script injecté bloqué", async ({ page,
   } else {
     await page.getByRole("navigation", { name: "Navigation principale", exact: true }).getByRole("link", { name: "STUDIO" }).click();
   }
-  await page.getByRole("button", { name: /BASE SINGLE/ }).click();
-  await expect(page.locator("#project-summary")).toContainText("421 CHF");
+  await page.getByRole("navigation", { name: "Navigation Studio" }).getByRole("link", { name: "TARIFS" }).click();
+  await expect(page.locator("#prix-studio")).toContainText("175 CHF");
 });
 
 test("WebP servi même quand le navigateur accepte AVIF", async ({ request }) => {
@@ -56,17 +56,4 @@ test("menu paysage défilable et focus restauré après Échap", async ({ page }
   await expect(studio).toBeInViewport();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("button", { name: "Ouvrir le menu" })).toBeFocused();
-});
-
-test("la barre Studio disparaît pendant la lecture du récapitulatif", async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/creation");
-  await page.getByRole("button", { name: /BASE SINGLE/ }).click();
-  await expect(page.locator("[data-studio-mobile-summary]")).toBeVisible();
-  const copy = page.getByRole("button", { name: "COPIER LE RÉCAPITULATIF ET OUVRIR INSTAGRAM" });
-  await copy.focus();
-  await expect(page.locator("[data-studio-mobile-summary]")).toHaveCount(0);
-  const box = (await copy.boundingBox())!;
-  expect(box.y).toBeGreaterThanOrEqual(132);
-  expect(box.y + box.height).toBeLessThanOrEqual(844);
 });

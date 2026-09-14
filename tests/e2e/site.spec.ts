@@ -192,97 +192,17 @@ test("le contact propose Instagram et l’adresse e-mail NUBE", async ({ page })
   }
 });
 
-test("le configurateur Studio calcule le parcours sélectionné", async ({ page }) => {
-  await page.goto("/creation");
-
-  const configurator = page.locator("#configurateur");
-  await configurator.locator("label", { hasText: "Direction artistique" }).click();
-  await configurator.locator("label", { hasText: "Cover" }).click();
-  await configurator.locator("label", { hasText: "Studio" }).click();
-
-  await expect(configurator.getByText("3 SÉLECTIONS")).toBeVisible();
-  await expect(configurator.getByText("− 56 CHF")).toBeVisible();
-  await expect(configurator.getByText("319 CHF", { exact: true })).toBeVisible();
-});
-
-test("le Studio utilise un seul flux de sélection sans imposer de durée", async ({ page }) => {
-  await page.goto("/creation");
-  const configurator = page.locator("#configurateur");
-
-  await expect(page.locator("#carte button")).toHaveCount(0);
-  await expect(configurator.getByLabel(/Direction artistique/)).toHaveCount(1);
-
-  await configurator.locator("label", { hasText: "Direction artistique" }).click();
-  await configurator.locator("label", { hasText: "Cover" }).click();
-  await configurator.locator("label", { hasText: "Studio" }).click();
-  await expect(configurator.locator("#studio-hours")).toHaveCount(0);
-
-  await expect(configurator.getByText("375 CHF")).toBeVisible();
-  await expect(configurator.getByText("− 56 CHF")).toBeVisible();
-  await expect(configurator.getByText("319 CHF", { exact: true })).toBeVisible();
-});
-
-test("le résumé Studio mobile reste accessible pendant la sélection", async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name !== "mobile-chromium", "Le résumé fixe est réservé au mobile");
-  await page.goto("/creation");
-  const configurator = page.locator("#configurateur");
-
-  await configurator.locator("label", { hasText: "Direction artistique" }).click();
-  const summaryLink = page.getByRole("link", { name: "VOIR MON PROJET" });
-  await expect(summaryLink).toBeVisible();
-  await expect(summaryLink.locator("..").getByText("1 SÉLECTION", { exact: true })).toBeVisible();
-  await summaryLink.click();
-  await expect(page.locator("#project-summary")).toBeInViewport();
-});
-
 test("les plateformes indisponibles ne sont pas affichées", async ({ page }) => {
   await page.goto("/artistes");
   await expect(page.getByText(/BIENTÔT/)).toHaveCount(0);
 });
 
-test("le projet Studio est conservé puis peut être réinitialisé", async ({ page }) => {
-  await page.goto("/creation");
-  const configurator = page.locator("#configurateur");
-  await configurator.getByRole("button", { name: "Album", exact: true }).click();
-  await configurator.locator("label", { hasText: "Cover" }).click();
-  await page.reload();
-
-  await expect(configurator.getByRole("button", { name: /^Album/ })).toHaveAttribute("aria-pressed", "true");
-  await expect(configurator.getByRole("checkbox", { name: /Cover/ })).toBeChecked();
-
-  await configurator.getByRole("button", { name: "RÉINITIALISER MON PROJET" }).click();
-  await expect(configurator.getByRole("checkbox", { name: /Cover/ })).not.toBeChecked();
-  await page.reload();
-  await expect(configurator.getByRole("checkbox", { name: /Cover/ })).not.toBeChecked();
-});
-
-test("le résumé Studio est copié avant l’ouverture d’Instagram", async ({ page }) => {
-  await page.addInitScript(() => {
-    const state = window as Window & { __copied?: string; __opened?: string };
-    Object.defineProperty(navigator, "clipboard", { value: { writeText: async (text: string) => { state.__copied = text; } } });
-    window.open = ((url?: string | URL) => { state.__opened = String(url); return null; }) as typeof window.open;
-  });
-  await page.goto("/creation");
-  const configurator = page.locator("#configurateur");
-  await configurator.locator("label", { hasText: "Direction artistique" }).click();
-  await configurator.getByRole("button", { name: "COPIER LE RÉCAPITULATIF ET OUVRIR INSTAGRAM" }).click();
-
-  await expect(configurator.getByRole("status")).toContainText("Résumé copié");
-  const transfer = await page.evaluate(() => {
-    const state = window as Window & { __copied?: string; __opened?: string };
-    return { copied: state.__copied, opened: state.__opened };
-  });
-  expect(transfer.copied).toContain("Direction artistique");
-  expect(transfer.copied).toContain("150 CHF");
-  expect(transfer.opened).toBe("https://www.instagram.com/nube.experience/");
-});
-
 test("la navigation Studio atteint les sections principales", async ({ page }) => {
   await page.goto("/creation");
   const studioNavigation = page.getByRole("navigation", { name: "Navigation Studio" });
-  await studioNavigation.getByRole("link", { name: "MON PROJET" }).click();
-  await expect(page).toHaveURL(/#configurateur$/);
-  await expect(page.locator("#configurateur")).toBeInViewport();
+  await studioNavigation.getByRole("link", { name: "TARIFS" }).click();
+  await expect(page).toHaveURL(/#tarifs$/);
+  await expect(page.locator("#tarifs")).toBeInViewport();
 });
 
 test("les principales zones de navigation gardent une cible de 44 px", async ({ page }) => {
@@ -295,16 +215,6 @@ test("les principales zones de navigation gardent une cible de 44 px", async ({ 
   );
 
   expect(undersized).toEqual([]);
-});
-
-test("Studio reste plus direct sur mobile", async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name !== "mobile-chromium", "Mesure réservée au mobile");
-  await page.goto("/creation");
-
-  await expect(page.locator("#parcours")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: /BASE SINGLE/ })).toBeVisible();
-  await expect(page.locator("#configurateur label strong")).toHaveCount(17);
-  await expect(page.getByRole("group", { name: "Formule Studio : nombre de sons" })).toBeVisible();
 });
 
 test("toutes les pages restent lisibles aux largeurs courantes", async ({ page }, testInfo) => {
@@ -339,7 +249,7 @@ test("toutes les pages restent lisibles aux largeurs courantes", async ({ page }
 
 test("le nuage du Studio reste entier et animé", async ({ page }) => {
   await page.goto("/creation");
-  const cloud = page.locator("[data-studio-cloud]");
+  const cloud = page.locator(".studio-cloud");
   await expect(cloud).toBeVisible();
 
   const bounds = await cloud.boundingBox();
@@ -379,25 +289,9 @@ test("le menu mobile se ferme avec Échap", async ({ page }, testInfo) => {
   await expect(page.getByRole("button", { name: "Ouvrir le menu" })).toHaveAttribute("aria-expanded", "false");
 });
 
-for (const errorName of ["SecurityError", "QuotaExceededError"]) {
-  test(`le configurateur reste utilisable si la sauvegarde échoue : ${errorName}`, async ({ page }) => {
-    const errors = captureBrowserErrors(page);
-    await page.addInitScript((name) => {
-      Storage.prototype.setItem = () => { throw new DOMException("Storage unavailable", name); };
-    }, errorName);
-    await page.goto("/creation");
-    const configurator = page.locator("#configurateur");
-    await configurator.locator("label", { hasText: "Cover" }).click();
-    await expect(configurator.getByRole("checkbox", { name: /Cover/ })).toBeChecked();
-    await expect(page.locator("#project-summary")).toContainText("50 CHF");
-    await configurator.getByRole("button", { name: "RÉINITIALISER MON PROJET" }).click();
-    await expect(configurator.getByRole("checkbox", { name: /Cover/ })).not.toBeChecked();
-    expect(errors).toEqual([]);
-  });
-}
 
 test("le rose du Studio s’adapte aux fonds clairs et sombres", async ({ page }) => {
   await page.goto("/creation");
-  await expect(page.locator("#configurateur h2 em")).toHaveCSS("color", "rgb(168, 21, 104)");
-  await expect(page.locator("#project-summary > div").first().locator("p").first()).toHaveCSS("color", "rgb(255, 102, 196)");
+  await expect(page.locator(".studio-discount > strong")).toHaveCSS("color", "rgb(168, 21, 104)");
+  await expect(page.locator("#accompagnement h2 em")).toHaveCSS("color", "rgb(255, 102, 196)");
 });
