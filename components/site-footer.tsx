@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { contactEmail, contactEmailUrl } from "@/data/nube";
+import { contactEmail, contactEmailUrl, instagramUrl } from "@/data/nube";
 import { mainNavigation } from "@/data/navigation";
 
 type SiteFooterProps = {
@@ -22,7 +22,17 @@ export function SiteFooter({ theme = "dark" }: SiteFooterProps) {
         <div className="justify-self-center min-[901px]:justify-self-start">
           <Link className="inline-flex min-h-11 items-center text-2xl font-[950] tracking-[-.05em]" href="/" aria-label="Retour à l’accueil NUBE">NUBE<sup className="ml-0.5 align-top text-[11px]">®</sup></Link>
           <p className={`mb-0 mt-2 text-[12px] font-bold leading-[1.6] tracking-[.08em] ${muted}`}>FESTIVAL ET STUDIO ARTISTIQUE INDÉPENDANT · LAUSANNE</p>
-          <a className="mt-2 inline-flex min-h-11 items-center text-[14px] underline underline-offset-4" href={contactEmailUrl}>{contactEmail}</a>
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-x-5 gap-y-1 min-[901px]:justify-start">
+            <a className="inline-flex min-h-11 items-center text-[14px] underline underline-offset-4" href={contactEmailUrl}>{contactEmail}</a>
+            <a className={`inline-flex min-h-11 items-center gap-2 text-[14px] transition ${linkHover}`} href={instagramUrl} target="_blank" rel="noopener noreferrer" aria-label="Suivre NUBE sur Instagram : @nube.experience">
+              <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="5" />
+                <circle cx="12" cy="12" r="4" />
+                <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+              </svg>
+              @nube.experience
+            </a>
+          </div>
         </div>
         <nav className="flex flex-wrap justify-center gap-x-6 gap-y-4 justify-self-center" aria-label="Navigation de pied de page">
           {mainNavigation.map((link) => (
