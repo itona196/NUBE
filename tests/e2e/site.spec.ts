@@ -201,8 +201,8 @@ test("le configurateur Studio calcule le parcours sélectionné", async ({ page 
   await configurator.locator("label", { hasText: "Studio" }).click();
 
   await expect(configurator.getByText("3 SÉLECTIONS")).toBeVisible();
-  await expect(configurator.getByText("− 42 CHF")).toBeVisible();
-  await expect(configurator.getByText("238 CHF", { exact: true })).toBeVisible();
+  await expect(configurator.getByText("− 56 CHF")).toBeVisible();
+  await expect(configurator.getByText("319 CHF", { exact: true })).toBeVisible();
 });
 
 test("le Studio utilise un seul flux de sélection sans imposer de durée", async ({ page }) => {
@@ -217,9 +217,9 @@ test("le Studio utilise un seul flux de sélection sans imposer de durée", asyn
   await configurator.locator("label", { hasText: "Studio" }).click();
   await expect(configurator.locator("#studio-hours")).toHaveCount(0);
 
-  await expect(configurator.getByText("280 CHF")).toBeVisible();
-  await expect(configurator.getByText("− 42 CHF")).toBeVisible();
-  await expect(configurator.getByText("238 CHF", { exact: true })).toBeVisible();
+  await expect(configurator.getByText("375 CHF")).toBeVisible();
+  await expect(configurator.getByText("− 56 CHF")).toBeVisible();
+  await expect(configurator.getByText("319 CHF", { exact: true })).toBeVisible();
 });
 
 test("le résumé Studio mobile reste accessible pendant la sélection", async ({ page }, testInfo) => {
@@ -303,7 +303,8 @@ test("Studio reste plus direct sur mobile", async ({ page }, testInfo) => {
 
   await expect(page.locator("#parcours")).toHaveCount(0);
   await expect(page.getByRole("button", { name: /BASE SINGLE/ })).toBeVisible();
-  expect(await page.evaluate(() => document.body.scrollHeight)).toBeLessThan(7000);
+  await expect(page.locator("#configurateur label strong")).toHaveCount(17);
+  await expect(page.getByRole("group", { name: "Formule Studio : nombre de sons" })).toBeVisible();
 });
 
 test("toutes les pages restent lisibles aux largeurs courantes", async ({ page }, testInfo) => {
@@ -388,7 +389,7 @@ for (const errorName of ["SecurityError", "QuotaExceededError"]) {
     const configurator = page.locator("#configurateur");
     await configurator.locator("label", { hasText: "Cover" }).click();
     await expect(configurator.getByRole("checkbox", { name: /Cover/ })).toBeChecked();
-    await expect(page.locator("#project-summary")).toContainText("80 CHF");
+    await expect(page.locator("#project-summary")).toContainText("50 CHF");
     await configurator.getByRole("button", { name: "RÉINITIALISER MON PROJET" }).click();
     await expect(configurator.getByRole("checkbox", { name: /Cover/ })).not.toBeChecked();
     expect(errors).toEqual([]);

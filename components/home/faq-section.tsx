@@ -1,5 +1,7 @@
+import { instagramUrl } from "@/data/nube";
+
 const questions = [
-  { question: "Comment suivre les prochaines annonces ?", answer: "Les nouvelles éditions, la programmation et les informations pratiques sont annoncées sur le site et sur le compte Instagram de NUBE." },
+  { question: "Comment suivre les prochaines annonces ?", answer: <>Les nouvelles éditions, la programmation et les informations pratiques sont annoncées sur le site et sur le compte Instagram de <a className="font-bold text-[var(--nube-accent-text)] underline underline-offset-4" href={instagramUrl} target="_blank" rel="noopener noreferrer">NUBE</a>.</> },
   { question: "Où aura lieu la prochaine édition ?", answer: "À Lausanne. Le lieu précis, les horaires et les conditions d’accès seront communiqués dès leur confirmation." },
   { question: "NUBE Studio et le festival, c’est la même chose ?", answer: "Le festival est la scène publique. NUBE Studio est le pôle qui accompagne la création d’identités et d’expériences." },
 ];

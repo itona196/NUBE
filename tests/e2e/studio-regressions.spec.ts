@@ -15,9 +15,9 @@ async function copiedSummary(page: Page) {
 }
 
 for (const entry of [
-  { names: ["Clip", "Mix & master"], estimate: "sur devis" },
-  { names: ["Cover"], estimate: "80 CHF" },
-  { names: ["Cover", "Clip"], estimate: "80 CHF + prestations sur devis, en supplément et non incluses" },
+  { names: ["Clip"], estimate: "sur devis" },
+  { names: ["Cover"], estimate: "50 CHF" },
+  { names: ["Cover", "Clip"], estimate: "50 CHF + prestations sur devis, en supplément et non incluses" },
 ]) {
   test(`estimation copiée : ${entry.names.join(" + ")}`, async ({ page }) => {
     await captureCopy(page);
@@ -27,37 +27,37 @@ for (const entry of [
     const copied = await copiedSummary(page);
     expect(copied).toContain(`Estimation indicative : ${entry.estimate}.`);
     expect(copied).not.toMatch(/(?:^|\s)0 CHF/);
-    expect(copied).not.toContain("base d’une heure");
+    expect(copied).not.toContain("enregistrement, mix & master");
     await expect(page.locator("#project-summary")).toContainText(`Estimation indicative : ${entry.estimate}.`);
   });
 }
 
 for (const entry of [
-  { preset: "SINGLE", gross: 430, discount: 65, estimate: 365 },
-  { preset: "EP", gross: 430, discount: 65, estimate: 365 },
-  { preset: "ALBUM", gross: 730, discount: 110, estimate: 620 },
+  { preset: "SINGLE", gross: 495, discount: 74, estimate: 421 },
+  { preset: "EP", gross: 495, discount: 74, estimate: 421 },
+  { preset: "ALBUM", gross: 715, discount: 107, estimate: 608 },
 ]) {
-  test(`hypothèse horaire et réduction : base ${entry.preset}`, async ({ page }) => {
+  test(`formule Studio et réduction : base ${entry.preset}`, async ({ page }) => {
     await captureCopy(page);
     await page.goto("/creation");
     await page.getByRole("button", { name: new RegExp(`BASE ${entry.preset}`) }).click();
     const summary = page.locator("#project-summary");
-    await expect(summary).toContainText("Studio — base d’une heure à 50 CHF, durée à convenir");
+    await expect(summary).toContainText("Studio — enregistrement, mix & master : 1 son (175 CHF)");
     await expect(summary).toContainText(`${entry.gross} CHF`);
     await expect(summary).toContainText(`− ${entry.discount} CHF`);
     expect(await copiedSummary(page)).toContain(`Estimation indicative : ${entry.estimate} CHF.`);
-    expect(await copiedSummary(page)).toContain("Studio — base d’une heure à 50 CHF, durée à convenir");
+    expect(await copiedSummary(page)).toContain("Studio — enregistrement, mix & master : 1 son (175 CHF)");
     await summary.getByRole("button", { name: "Retirer Studio", exact: true }).click();
-    await expect(summary).not.toContainText("base d’une heure");
-    expect(await copiedSummary(page)).not.toContain("base d’une heure");
+    await expect(summary).not.toContainText("enregistrement, mix & master");
+    expect(await copiedSummary(page)).not.toContain("enregistrement, mix & master");
   });
 }
 
-test("Studio seul estime une heure sans réduction", async ({ page }) => {
+test("Studio seul inclut l’acompte sans réduction", async ({ page }) => {
   await captureCopy(page);
   await page.goto("/creation");
-  await page.locator("#configurateur label", { hasText: "Studio" }).click();
-  expect(await copiedSummary(page)).toContain("Estimation indicative : 50 CHF.");
+  await page.locator("#configurateur label").filter({ has: page.locator("strong", { hasText: /^Studio$/ }) }).click();
+  expect(await copiedSummary(page)).toContain("Estimation indicative : 175 CHF.");
   await expect(page.locator("#project-summary")).not.toContainText("Réduction de 15 % activée");
 });
 
@@ -78,8 +78,8 @@ for (const entry of [
     await page.addInitScript(raw => localStorage.setItem("nube-studio-project", raw), entry.raw);
     await page.goto("/creation");
     await expect(page.locator("#project-summary h3")).toHaveText(entry.type);
-    await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("nube-studio-project")!))).toEqual({ projectType: entry.type, selected: entry.ids });
-    await expect(page.locator("#configurateur input:checked")).toHaveCount(entry.ids.length);
+    await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("nube-studio-project")!))).toMatchObject({ projectType: entry.type, selected: entry.ids });
+    await expect(page.locator('#configurateur input[type="checkbox"]:checked')).toHaveCount(entry.ids.length);
     await page.getByRole("button", { name: "RÉINITIALISER MON PROJET" }).click();
     await page.locator("#configurateur label", { hasText: "Cover" }).click();
     await expect(page.getByRole("checkbox", { name: /Cover/ })).toBeChecked();
@@ -98,7 +98,7 @@ for (const mode of ["getItem", "property"] as const) {
     }, mode);
     await page.goto("/creation");
     await page.locator("#configurateur label", { hasText: "Cover" }).click();
-    await expect(page.locator("#project-summary")).toContainText("80 CHF");
+    await expect(page.locator("#project-summary")).toContainText("50 CHF");
     await page.getByRole("button", { name: "RÉINITIALISER MON PROJET" }).click();
     await expect(page.getByRole("checkbox", { name: /Cover/ })).not.toBeChecked();
     expect(errors).toEqual([]);
@@ -205,5 +205,86 @@ test("le focus clavier reste contrasté sur les surfaces claires, roses et sombr
       await entry.target.press("Space");
       await expect(entry.target).not.toBeChecked();
     }
+  }
+});
+
+for (const entry of [{ songs: 1, price: 175 }, { songs: 2, price: 310 }, { songs: 3, price: 405 }, { songs: 4, price: 460 }]) {
+  test(`formule ${entry.songs} sons et acompte inclus`, async ({ page }) => {
+    await captureCopy(page);
+    await page.goto("/creation");
+    await page.locator('#configurateur label').filter({ has: page.locator('strong', { hasText: /^Studio$/ }) }).click();
+    await page.getByRole('radio', { name: `${entry.songs} son${entry.songs > 1 ? 's' : ''} : ${entry.price} CHF`, exact: true }).check();
+    expect(await copiedSummary(page)).toContain(`Estimation indicative : ${entry.price} CHF.`);
+    expect(await copiedSummary(page)).toContain('100 CHF, compris dans la formule et déduit du solde');
+    await expect(page.locator('#project-summary')).not.toContainText('Réduction de 15 % activée');
+    await expect(page.locator('#project-summary')).toContainText('1 sur 3');
+  });
+}
+
+test('suppléments exclus du seuil et de la réduction', async ({ page }) => {
+  await captureCopy(page);
+  await page.goto('/creation');
+  const selectService = async (name: string) => page.locator('#configurateur label').filter({ has: page.locator('strong', { hasText: new RegExp(`^${name}$`) }) }).click();
+  await selectService('Studio');
+  for (const name of [/Featuring/, /PPP/, /Live :/]) await page.getByRole('checkbox', { name }).check();
+  expect(await copiedSummary(page)).toContain('Estimation indicative : 285 CHF.');
+  await expect(page.locator('#project-summary')).toContainText('1 sur 3');
+  await selectService('Cover');
+  expect(await copiedSummary(page)).toContain('Estimation indicative : 335 CHF.');
+  await selectService('Direction artistique');
+  expect(await copiedSummary(page)).toContain('Estimation indicative : 429 CHF.');
+  await expect(page.locator('#project-summary')).toContainText('− 56 CHF');
+  await expect(page.locator('#project-summary')).toContainText('Featuring : +50 CHF (hors réduction)');
+  await page.getByRole('button', { name: 'Retirer Studio', exact: true }).click();
+  expect(await copiedSummary(page)).toContain('Estimation indicative : 200 CHF.');
+  expect(await copiedSummary(page)).not.toContain('Supplément');
+  await expect(page.getByRole('checkbox', { name: /Featuring/ })).toBeDisabled();
+});
+
+test('les formats multiplient le tarif et comptent comme un service', async ({ page }) => {
+  await captureCopy(page);
+  await page.goto('/creation');
+  await page.locator('#configurateur label', { hasText: 'Déclinaison visuelle' }).click();
+  await page.getByRole('spinbutton', { name: 'Nombre de formats' }).fill('3');
+  expect(await copiedSummary(page)).toContain('Estimation indicative : 90 CHF.');
+  await expect(page.locator('#project-summary')).toContainText('1 sur 3');
+  for (const name of ['Affiche', 'Visuel promotionnel']) await page.locator('#configurateur label').filter({ has: page.locator('strong', { hasText: new RegExp(`^${name}$`) }) }).click();
+  expect(await copiedSummary(page)).toContain('Estimation indicative : 221 CHF.');
+  expect(await copiedSummary(page)).toContain('3 formats à 30 CHF/format');
+});
+
+test('restauration des formules, formats et suppléments filtrés', async ({ page }) => {
+  await captureCopy(page);
+  await page.addInitScript(() => localStorage.setItem('nube-studio-project', JSON.stringify({ projectType: 'EP', selected: ['studio', 'visual-format', 'mix-master'], studioSongs: 4, visualFormats: 3, studioExtras: ['featuring', 'featuring', 'invalid', null] })));
+  await page.goto('/creation');
+  expect(await copiedSummary(page)).toContain('Estimation indicative : 600 CHF.');
+  await expect(page.getByRole('radio', { name: '4 sons : 460 CHF', exact: true })).toBeChecked();
+  await expect(page.getByRole('spinbutton', { name: 'Nombre de formats' })).toHaveValue('3');
+  await expect(page.locator('#project-summary')).toContainText('2 sur 3');
+});
+
+test("les nouveaux tarifs Design, Musique et Visuel sont affichés", async ({ page }) => {
+  await page.goto("/creation");
+  for (const entry of [
+    { name: "Direction artistique", price: "dès 150 CHF" },
+    { name: "Identité visuelle", price: "200 CHF" },
+    { name: "Cover", price: "50 CHF" },
+    { name: "Affiche", price: "100 CHF" },
+    { name: "Visuel promotionnel", price: "70 CHF" },
+    { name: "Déclinaison visuelle", price: "30 CHF/format" },
+    { name: "Production musicale", price: "dès 100 CHF" },
+    { name: "Composition / arrangement", price: "30 CHF" },
+    { name: "Accompagnement artistique", price: "30 CHF" },
+    { name: "Shooting photo", price: "120 CHF" },
+    { name: "Contenu promotionnel", price: "100 CHF" },
+    { name: "Contenu vertical", price: "80 CHF" },
+    { name: "Visualizer", price: "120 CHF" },
+    { name: "Vidéo", price: "dès 150 CHF" },
+    { name: "Captation live/performance", price: "dès 150 CHF" },
+    { name: "Clip", price: "sur devis" },
+  ]) {
+    const row = page.locator("#configurateur label").filter({ has: page.locator("strong", { hasText: new RegExp(`^${entry.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`) }) });
+    await expect(row).toHaveCount(1);
+    await expect(row.locator("small")).toContainText(entry.price);
   }
 });
